@@ -22,6 +22,26 @@ func Dir() (string, error) {
 	return dirUnix()
 }
 
+// Expand expands the path to include the home directory if the path
+// is prefixed with `~`. If it isn't prefixed with `~`, the path is
+// returned as-is.
+func Expand(path string) (string, error) {
+	if path[0] != '~' {
+		return path, nil
+	}
+
+	if path[1] != '/' && path[1] != '\\' {
+		return "", errors.New("cannot expand user-specific home dir")
+	}
+
+	dir, err := Dir()
+	if err != nil {
+		return "", err
+	}
+
+	return dir + path[1:], nil
+}
+
 func dirUnix() (string, error) {
 	// First prefer the HOME environmental variable
 	if home := os.Getenv("HOME"); home != "" {
