@@ -44,6 +44,18 @@ func TestExpand(t *testing.T) {
 			fmt.Sprintf("%s/foo", u.HomeDir),
 			false,
 		},
+		
+		{
+			"",
+			"",
+			false,
+		},
+
+		{
+			"~",
+			u.HomeDir,
+			false,
+		},
 
 		{
 			"~foo/foo",
