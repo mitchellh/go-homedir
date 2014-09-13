@@ -26,7 +26,11 @@ func Dir() (string, error) {
 // is prefixed with `~`. If it isn't prefixed with `~`, the path is
 // returned as-is.
 func Expand(path string) (string, error) {
-	if len(path) == 0 || path[0] != '~' {
+	if len(path) == 0 {
+		return path, nil
+	}
+
+	if path[0] != '~' {
 		return path, nil
 	}
 
