@@ -10,17 +10,30 @@ import (
 	"strings"
 )
 
+var homedir string
+
 // Dir returns the home directory for the executing user.
 //
 // This uses an OS-specific method for discovering the home directory.
 // An error is returned if a home directory cannot be detected.
 func Dir() (string, error) {
-	if runtime.GOOS == "windows" {
-		return dirWindows()
+	if homedir != "" {
+		return homedir, nil
 	}
 
-	// Unix-like system, so just assume Unix
-	return dirUnix()
+	var err error
+	if runtime.GOOS == "windows" {
+		homedir, err = dirWindows()
+	} else {
+		// Unix-like system, so just assume Unix
+		homedir, err = dirUnix()
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	return homedir, nil
 }
 
 // Expand expands the path to include the home directory if the path
