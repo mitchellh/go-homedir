@@ -8,32 +8,42 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync/atomic"
 )
 
-var homedir string
+// DisableCache will disable caching of the home directory. Caching is enabled
+// by default.
+var DisableCache bool
+
+var homedirCache atomic.Value
 
 // Dir returns the home directory for the executing user.
 //
 // This uses an OS-specific method for discovering the home directory.
 // An error is returned if a home directory cannot be detected.
 func Dir() (string, error) {
-	if homedir != "" {
-		return homedir, nil
+	if !DisableCache {
+		cached := homedirCache.Load()
+		if cached != nil && cached != "" {
+			return cached.(string), nil
+		}
 	}
 
+	var result string
 	var err error
 	if runtime.GOOS == "windows" {
-		homedir, err = dirWindows()
+		result, err = dirWindows()
 	} else {
 		// Unix-like system, so just assume Unix
-		homedir, err = dirUnix()
+		result, err = dirUnix()
 	}
 
 	if err != nil {
 		return "", err
 	}
 
-	return homedir, nil
+	homedirCache.Store(result)
+	return result, nil
 }
 
 // Expand expands the path to include the home directory if the path

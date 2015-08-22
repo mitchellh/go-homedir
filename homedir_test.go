@@ -17,6 +17,18 @@ func patchEnv(key, value string) func() {
 	return deferFunc
 }
 
+func BenchmarkDir(b *testing.B) {
+	// We do this for any "warmups"
+	for i := 0; i < 10; i++ {
+		Dir()
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		Dir()
+	}
+}
+
 func TestDir(t *testing.T) {
 	u, err := user.Current()
 	if err != nil {
@@ -86,6 +98,8 @@ func TestExpand(t *testing.T) {
 		}
 	}
 
+	DisableCache = true
+	defer func() { DisableCache = false }()
 	defer patchEnv("HOME", "/custom/path/")()
 	expected := "/custom/path/foo/bar"
 	actual, err := Expand("~/foo/bar")
