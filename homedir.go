@@ -32,6 +32,9 @@ func Dir() (string, error) {
 		}
 	}
 
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
+
 	var result string
 	var err error
 	if runtime.GOOS == "windows" {
@@ -44,9 +47,7 @@ func Dir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	cacheLock.Lock()
 	homedirCache = result
-	cacheLock.Unlock()
 	return result, nil
 }
 
