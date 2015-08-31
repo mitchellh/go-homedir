@@ -8,14 +8,15 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync/atomic"
+	"sync"
 )
 
 // DisableCache will disable caching of the home directory. Caching is enabled
 // by default.
 var DisableCache bool
 
-var homedirCache atomic.Value
+var homedirCache string
+var cacheLock sync.RWMutex
 
 // Dir returns the home directory for the executing user.
 //
@@ -23,11 +24,16 @@ var homedirCache atomic.Value
 // An error is returned if a home directory cannot be detected.
 func Dir() (string, error) {
 	if !DisableCache {
-		cached := homedirCache.Load()
-		if cached != nil && cached != "" {
-			return cached.(string), nil
+		cacheLock.RLock()
+		cached := homedirCache
+		cacheLock.RUnlock()
+		if cached != "" {
+			return cached, nil
 		}
 	}
+
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
 
 	var result string
 	var err error
@@ -41,8 +47,7 @@ func Dir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	homedirCache.Store(result)
+	homedirCache = result
 	return result, nil
 }
 
