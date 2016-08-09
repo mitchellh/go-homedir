@@ -4,6 +4,8 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -26,6 +28,57 @@ func BenchmarkDir(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		Dir()
+	}
+}
+
+func TestUser(t *testing.T) {
+	DisableCache = true
+
+	u, err := user.Current()
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	if runtime.GOOS == "windows" {
+		a := strings.Split(u.Username, "\\")
+		if len(a) != 2 {
+			t.Fatalf("could not split username")
+		}
+		u.Username = a[1] // patch up username
+	}
+
+	user, err := User()
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	if u.Username != user {
+		t.Fatalf("invalid user %v != %v", u.Username, user)
+	}
+
+	if runtime.GOOS == "windows" {
+		return
+	}
+
+	// force whoami
+	patchEnv("USER", "")
+	user, err = User()
+	if err != nil {
+		t.Fatalf("err whoami: %s", err)
+	}
+
+	if u.Username != user {
+		t.Fatalf("invalid user %v != %v", u.Username, user)
+	}
+
+	// force id
+	whoamiBypass = true
+	user, err = User()
+	if err != nil {
+		t.Fatalf("err id: %s", err)
+	}
+
+	if u.Username != user {
+		t.Fatalf("invalid user %v != %v", u.Username, user)
 	}
 }
 
