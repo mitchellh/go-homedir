@@ -30,5 +30,5 @@ import (
 home, err := homedir.Dir()
 
 // expand a directory if its path starts with ~
-someDir, err : = homedir.Expand("~/some-dir")
+someDir, err := homedir.Expand("~/some-dir")
 ```
