@@ -77,8 +77,14 @@ func Expand(path string) (string, error) {
 }
 
 func dirUnix() (string, error) {
+	homeEnv := "HOME"
+	if runtime.GOOS == "plan9" {
+		// On plan9, env vars are lowercase.
+		homeEnv = "home"
+	}
+
 	// First prefer the HOME environmental variable
-	if home := os.Getenv("HOME"); home != "" {
+	if home := os.Getenv(homeEnv); home != "" {
 		return home, nil
 	}
 
