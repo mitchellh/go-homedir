@@ -78,7 +78,14 @@ func Expand(path string) (string, error) {
 
 func dirUnix() (string, error) {
 	// First prefer the HOME environmental variable
-	if home := os.Getenv("HOME"); home != "" {
+	var homeEnv string
+	switch runtime.GOOS {
+		case "plan9":
+			homeEnv = "home"
+		default:
+			homeEnv = "HOME"
+	}
+	if home := os.Getenv(homeEnv); home != "" {
 		return home, nil
 	}
 
