@@ -141,7 +141,7 @@ func dirWindows() (string, error) {
 		return home, nil
 	}
 
-  // Prefer standard environment variable USERPROFILE
+	// Prefer standard environment variable USERPROFILE
 	if home := os.Getenv("USERPROFILE"); home != "" {
 		return home, nil
 	}
