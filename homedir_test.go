@@ -122,8 +122,10 @@ func TestExpand(t *testing.T) {
 	actual, err := Expand("~/foo/bar")
 
 	if err != nil {
-		t.Errorf("No error is expected, got: %v", err)
-	} else if actual != expected {
+		t.Fatalf("No error is expected, got: %v", err)
+	}
+
+	if actual != expected {
 		t.Errorf("Expected: %v; actual: %v", expected, actual)
 	}
 }
