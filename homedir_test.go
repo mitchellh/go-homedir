@@ -99,8 +99,8 @@ func TestExpand(t *testing.T) {
 
 		{
 			"~foo/foo",
-			"",
-			true,
+			"~foo/foo",
+			false,
 		},
 	}
 
