@@ -76,6 +76,17 @@ func Expand(path string) (string, error) {
 	return filepath.Join(dir, path[1:]), nil
 }
 
+// Abs expands filepath, similar to filepath.Abs(), but
+// also expands '~' (tilde) if present in the path string.
+func Abs(path string) (string, error) {
+	path, err := Expand(path)
+	if err != nil{
+		return "", err
+	}
+	
+	return filepath.Abs(path)
+}
+
 // Reset clears the cache, forcing the next call to Dir to re-detect
 // the home directory. This generally never has to be called, but can be
 // useful in tests if you're modifying the home directory via the HOME
