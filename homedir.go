@@ -52,6 +52,18 @@ func Dir() (string, error) {
 	return result, nil
 }
 
+// MustDir returns the home directory for the executing user.
+//
+// This uses Dir() function
+// panic is called if a home directory cannot be detected.
+func MustDir() string {
+	result, err := Dir()
+	if err != nil {
+		panic(err)
+	}
+	return result
+}
+
 // Expand expands the path to include the home directory if the path
 // is prefixed with `~`. If it isn't prefixed with `~`, the path is
 // returned as-is.
