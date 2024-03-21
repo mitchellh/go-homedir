@@ -102,12 +102,20 @@ func dirUnix() (string, error) {
 
 	// If that fails, try OS specific commands
 	if runtime.GOOS == "darwin" {
-		cmd := exec.Command("sh", "-c", `dscl -q . -read /Users/"$(whoami)" NFSHomeDirectory | sed 's/^[^ ]*: //'`)
+		cmd := exec.Command("id", "-un")
 		cmd.Stdout = &stdout
 		if err := cmd.Run(); err == nil {
-			result := strings.TrimSpace(stdout.String())
-			if result != "" {
-				return result, nil
+			username := string(bytes.TrimSpace(stdout.Bytes()))
+			stdout.Reset()
+			if username != "" {
+				cmd = exec.Command("dscl", "-q", ".", "-read", "/Users/"+username, "NFSHomeDirectory")
+				cmd.Stdout = &stdout
+				if err := cmd.Run(); err == nil {
+					result := strings.TrimSpace(strings.TrimPrefix(stdout.String(), "NFSHomeDirectory: "))
+					if result != "" {
+						return result, nil
+					}
+				}
 			}
 		}
 	} else {
